@@ -22,17 +22,48 @@ function checksExistsUserAccount(request, response, next) {
 
 function checksCreateTodosUserAvailability(request, response, next) {
   const { user } = request;
-  if(user.pro === true){
-    
+  if(!user.pro && user.todos.lenght < 10){
+    return next()
+  }else if (user.pro){
+    return next()
+  }else{
+    return response.status(403).json({error: "Reached the limite of todos in the free plan"});
   }
 }
 
 function checksTodoExists(request, response, next) {
-  // Complete aqui
+  const { username } = request.headers;
+  const { id } = request.params;
+  
+  const userValidate = user.find(user => user.username === username);
+  const idValidate = validate(id);
+  const todo = user.todos.find(todo => todo.id === id);
+
+  if(!userValidate){
+    return response.status(404).json({error: "The user with this username not found"});
+  }else if(!idValidate){
+    return response.status(400).json({Error: "Id invalid!"});
+  }else if(!todo){
+    return response.status(404).json({error: "Todo not found"});
+  }else{
+    request.todo = todo;
+    request.user = user;
+
+    return next()
+  }
+
 }
 
 function findUserById(request, response, next) {
-  // Complete aqui
+  const { id } = request.params;
+  
+  const user = user.find(user => user.id === id);
+  
+  if(!user){
+    return response.status(404).json({error: "User not found"})
+  }
+  request.user = user;
+  return next();
 }
 
 app.post('/users', (request, response) => {
